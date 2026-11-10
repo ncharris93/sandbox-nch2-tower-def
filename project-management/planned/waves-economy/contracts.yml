@@ -1,0 +1,18 @@
+contracts:
+  - {id: game-state, imported_from: "maze-core#game-state"}
+  - {id: sim-loop, imported_from: "maze-core#sim-loop"}
+  - {id: combat, imported_from: "tower-combat#combat"}
+  - id: enemy-defs
+    description: "Per-archetype stats (hp, speed, regen, bounty, lifeCost, slow resistance, visual) — balance-pass tunes."
+    provider: 2026-11-09-archetypes
+    path: src/game/enemies.ts
+    kind: module
+    status: stub
+    consumers: [2026-11-09-bounties]
+  - id: waves
+    description: "Wave schedule (10 waves: groups of archetype, count, spacing) and the wave/intermission state machine."
+    provider: 2026-11-09-wave-flow
+    path: src/game/waves.ts
+    kind: module
+    status: stub
+    consumers: [2026-11-09-archetypes, 2026-11-09-lives-and-outcome]
