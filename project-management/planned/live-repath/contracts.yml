@@ -1,0 +1,5 @@
+contracts:
+  - {id: game-state, imported_from: "maze-core#game-state"}
+  - {id: pathfinding, imported_from: "maze-core#pathfinding"}
+  - {id: placement, imported_from: "maze-core#placement"}
+  - {id: sim-loop, imported_from: "maze-core#sim-loop"}
