@@ -48,3 +48,16 @@ describe("When a new game state is created for placement", () => {
 		expect(state.nextId).toBe(1);
 	});
 });
+
+describe("When a new game state is created for the sim", () => {
+	it("should start idle at sim time zero, unpaused, with no test wave queued", () => {
+		// Act
+		const state = createInitialState();
+
+		// Assert
+		expect(state.timeMs).toBe(0);
+		expect(state.paused).toBe(false);
+		expect(state.pendingMs).toBe(0);
+		expect(state.testWave).toEqual({ remaining: 0, untilNextSpawnMs: 0 });
+	});
+});

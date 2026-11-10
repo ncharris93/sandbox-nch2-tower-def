@@ -1,4 +1,4 @@
-import { type MouseEvent, useEffect, useRef } from "react";
+import { type MouseEvent, useEffect, useLayoutEffect, useRef } from "react";
 import type { GameState, Tile } from "../game/state";
 import { drawBoard, TILE_SIZE, tileFromPoint } from "./drawBoard";
 
@@ -13,7 +13,8 @@ export function Board({ state, route, onTileClick }: BoardProps) {
 	const width = state.grid.width * TILE_SIZE;
 	const height = state.grid.height * TILE_SIZE;
 
-	useEffect(() => {
+	// Resizing reallocates the backing store, so it runs only when the size changes, never per frame.
+	useLayoutEffect(() => {
 		const canvas = canvasRef.current;
 		const ctx = canvas?.getContext("2d");
 		if (!canvas || !ctx) return;
@@ -23,8 +24,14 @@ export function Board({ state, route, onTileClick }: BoardProps) {
 		canvas.width = width * pixelRatio;
 		canvas.height = height * pixelRatio;
 		ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+	}, [width, height]);
+
+	useEffect(() => {
+		const ctx = canvasRef.current?.getContext("2d");
+		if (!ctx) return;
+
 		drawBoard(ctx, { state, route });
-	}, [state, route, width, height]);
+	}, [state, route]);
 
 	function handleClick(event: MouseEvent<HTMLCanvasElement>) {
 		const bounds = event.currentTarget.getBoundingClientRect();

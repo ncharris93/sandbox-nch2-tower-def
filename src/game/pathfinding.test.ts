@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { distanceField, findRoute, tileKey, UNREACHABLE } from "./pathfinding";
+import {
+	distanceField,
+	findRoute,
+	nextStep,
+	tileKey,
+	UNREACHABLE,
+} from "./pathfinding";
 import { createInitialState, type Tile } from "./state";
 
 const noBlockedTiles: ReadonlySet<string> = new Set();
@@ -204,5 +210,50 @@ describe("When the distance-to-exit field is computed", () => {
 				[2, 1, 0],
 			]);
 		});
+	});
+});
+
+describe("When the next step toward the target is asked for", () => {
+	const grid = { width: 3, height: 3 };
+	const to: Tile = { x: 2, y: 2 };
+
+	it("should pick the first closer neighbor in north, east, south, west order", () => {
+		// Arrange
+		const field = distanceField({ grid, to, blocked: noBlockedTiles });
+
+		// Act
+		const next = nextStep({ grid, field, from: { x: 0, y: 0 } });
+
+		// Assert
+		expect(next).toEqual({ x: 1, y: 0 });
+	});
+
+	it("should return null at the target", () => {
+		// Arrange
+		const field = distanceField({ grid, to, blocked: noBlockedTiles });
+
+		// Act
+		const next = nextStep({ grid, field, from: to });
+
+		// Assert
+		expect(next).toBeNull();
+	});
+
+	it("should return null from a tile cut off from the target", () => {
+		// Arrange
+		const field = distanceField({
+			grid,
+			to,
+			blocked: blockedSet([
+				{ x: 1, y: 0 },
+				{ x: 0, y: 1 },
+			]),
+		});
+
+		// Act
+		const next = nextStep({ grid, field, from: { x: 0, y: 0 } });
+
+		// Assert
+		expect(next).toBeNull();
 	});
 });
