@@ -1,2 +1,4 @@
 ai-docs
 .ai-tmp
+node_modules
+dist
