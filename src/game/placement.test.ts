@@ -6,6 +6,7 @@ import {
 	placeTower,
 	towerFootprint,
 } from "./placement";
+import { isWaveActive, startTestWave, step } from "./sim";
 import {
 	createInitialState,
 	type GameState,
@@ -400,5 +401,60 @@ describe("When several towers are placed", () => {
 		// Assert
 		expect(state.towers.map((tower) => tower.id)).toEqual([existingId, 42]);
 		expect(state.nextId).toBe(43);
+	});
+});
+
+describe("When a placement is tried while a wave is active", () => {
+	const WAVE_ACTIVE_REASON =
+		"Building is paused while enemies are on the board. It resumes when the wave ends.";
+	const anchors: Tile[] = [
+		onTheStraightRoute,
+		{ x: 2, y: 2 },
+		{ x: 29, y: 4 },
+		{ x: 0, y: 9 },
+	];
+
+	for (const anchor of anchors) {
+		describe(`Given the anchor ${tileKey(anchor)}`, () => {
+			it("should refuse with the wave-active reason", () => {
+				// Arrange
+				const state = createInitialState();
+				startTestWave(state);
+
+				// Act
+				const result = placeTower({ state, anchor });
+
+				// Assert
+				expect(result).toEqual({ ok: false, reason: WAVE_ACTIVE_REASON });
+			});
+
+			it("should leave towers, money and next id unchanged", () => {
+				// Arrange
+				const state = createInitialState();
+				startTestWave(state);
+				const before = snapshot(state);
+
+				// Act
+				placeTower({ state, anchor });
+
+				// Assert
+				expect(snapshot(state)).toEqual(before);
+			});
+		});
+	}
+});
+
+describe("When the last enemy of a wave has left the board", () => {
+	it("should accept a legal placement again", () => {
+		// Arrange
+		const state = createInitialState();
+		startTestWave(state);
+		while (isWaveActive(state)) step(state);
+
+		// Act
+		const result = placeTower({ state, anchor: onTheStraightRoute });
+
+		// Assert
+		expect(result).toEqual({ ok: true });
 	});
 });

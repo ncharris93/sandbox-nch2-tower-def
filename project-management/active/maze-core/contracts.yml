@@ -6,6 +6,10 @@ contracts:
     kind: module
     status: stub
     consumers: [2026-11-09-place-towers, 2026-11-09-enemies-walk]
+    refinements:
+      - by: 2026-11-09-enemies-walk
+        date: 2026-11-09
+        note: "Additive: Enemy gains tile: Tile, next: Tile, progress: number (0–1 of the step tile→next). GameState gains timeMs, paused, pendingMs (unspent frame time) and testWave: { remaining, untilNextSpawnMs }; createInitialState sets them idle."
   - id: pathfinding
     description: "Deterministic 4-dir BFS over the tile grid, each function taking one options object: findRoute({ grid, from, to, blocked }) → Tile[] | null (route including both ends, null when cut off); distanceField({ grid, to, blocked }) → DistanceField (steps to target per tile, [y][x], UNREACHABLE for blocked or cut-off tiles). blocked is a ReadonlySet of tileKey(tile) strings."
     provider: 2026-11-09-grid-and-route
@@ -13,6 +17,10 @@ contracts:
     kind: module
     status: stub
     consumers: [2026-11-09-place-towers, 2026-11-09-enemies-walk]
+    refinements:
+      - by: 2026-11-09-enemies-walk
+        date: 2026-11-09
+        note: "Additive: nextStep({ grid, field, from }) → Tile | null — first neighbor one step closer in NEIGHBOR_OFFSETS order; findRoute uses it internally, output unchanged."
   - id: placement
     description: "Each function taking one options object where it has more than one input: canPlaceTower({ state, anchor }) → { ok: true } | { ok: false, reason } (player-readable reason; checks in order off-board, spawn/exit, overlap, funds, route); placeTower({ state, anchor }) → same result, and on ok mutates state (appends tower, deducts TOWER_COST, advances nextId); towerFootprint(anchor) → Tile[]; blockedTiles(state) → ReadonlySet<string> of tileKey for every tower tile. live-repath adds active-enemy and anti-juggle checks here."
     provider: 2026-11-09-place-towers
@@ -20,8 +28,12 @@ contracts:
     kind: module
     status: stub
     consumers: [2026-11-09-enemies-walk]
+    refinements:
+      - by: 2026-11-09-enemies-walk
+        date: 2026-11-09
+        note: "Additive: a new first check refuses every placement while isWaveActive(state) with a player-readable reason; order becomes wave-active, off-board, spawn/exit, overlap, funds, route."
   - id: sim-loop
-    description: "Fixed-timestep tick(state, dt) with clamped catch-up and pause; per-system update hooks (movement now; combat/waves added by later jobs)."
+    description: "Fixed-timestep sim: advance({ state, elapsedMs }) clamps elapsedMs to MAX_FRAME_MS, banks it in state.pendingMs and runs step(state) once per SIM_STEP_MS; no-op while state.paused. step(state) runs an ordered list of (state) => void systems (test-wave spawn, enemy movement now; combat/waves appended by later jobs). startTestWave(state) (no-op while active); isWaveActive(state) is true from start until the last enemy has spawned and exited. createGameStore() in src/game/store.ts serializes every write (placeTower, startWave, togglePause, advance) onto the latest state for useSyncExternalStore."
     provider: 2026-11-09-enemies-walk
     path: src/game/sim.ts
     kind: module

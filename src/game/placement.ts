@@ -1,8 +1,11 @@
 import { findRoute, tileKey } from "./pathfinding";
+import { isWaveActive } from "./sim";
 import { type GameState, type Tile, TOWER_COST } from "./state";
 
 export type PlacementResult = { ok: true } | { ok: false; reason: string };
 
+const WAVE_ACTIVE_REASON =
+	"Building is paused while enemies are on the board. It resumes when the wave ends.";
 const OFF_BOARD_REASON =
 	"Not enough room here. A tower needs a 2×2 space inside the board.";
 const SPAWN_OR_EXIT_REASON =
@@ -31,12 +34,14 @@ export function blockedTiles(state: GameState): ReadonlySet<string> {
 	);
 }
 
-/** Reports the first failing rule in order: off-board, spawn/exit, overlap, funds, route. */
+/** Reports the first failing rule in order: wave active, off-board, spawn/exit, overlap, funds, route. */
 export function canPlaceTower(params: {
 	state: GameState;
 	anchor: Tile;
 }): PlacementResult {
 	const { state, anchor } = params;
+	if (isWaveActive(state)) return { ok: false, reason: WAVE_ACTIVE_REASON };
+
 	const { grid, spawn, exit } = state;
 	const footprint = towerFootprint(anchor);
 	const footprintKeys = footprint.map(tileKey);

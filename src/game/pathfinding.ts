@@ -64,6 +64,23 @@ export function distanceField(params: {
 	return field;
 }
 
+/** First neighbor one step closer to the field's target, or `null` at the target or when cut off. */
+export function nextStep(params: {
+	grid: Grid;
+	field: DistanceField;
+	from: Tile;
+}): Tile | null {
+	const { grid, field, from } = params;
+	const distance = distanceAt(field, from);
+	if (distance === UNREACHABLE || distance === 0) return null;
+
+	return (
+		neighbors(grid, from).find(
+			(neighbor) => distanceAt(field, neighbor) === distance - 1,
+		) ?? null
+	);
+}
+
 /** Shortest 4-directional route including both ends, or `null` when `to` cannot be reached. */
 export function findRoute(params: {
 	grid: Grid;
@@ -76,12 +93,11 @@ export function findRoute(params: {
 	if (distanceAt(field, from) === UNREACHABLE) return null;
 
 	const route: Tile[] = [from];
-	let current = from;
-	while (distanceAt(field, current) > 0) {
-		const stepDistance = distanceAt(field, current) - 1;
-		current = neighbors(grid, current).find(
-			(neighbor) => distanceAt(field, neighbor) === stepDistance,
-		) as Tile;
+	for (
+		let current = nextStep({ grid, field, from });
+		current !== null;
+		current = nextStep({ grid, field, from: current })
+	) {
 		route.push(current);
 	}
 	return route;

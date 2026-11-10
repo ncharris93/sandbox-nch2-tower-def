@@ -1,4 +1,4 @@
-import type { GameState, Tile, Tower } from "../game/state";
+import type { Enemy, GameState, Tile, Tower } from "../game/state";
 
 export const TILE_SIZE = 28;
 
@@ -9,11 +9,13 @@ const BOARD_COLORS = {
 	spawn: "#4ade80",
 	exit: "#f87171",
 	tower: "#fbbf24",
+	enemy: "#e879f9",
 	label: "#f8fafc",
 } as const;
 
 const LABEL_FONT = "600 13px system-ui, sans-serif";
 const LABEL_GAP = 6;
+const ENEMY_RADIUS = TILE_SIZE / 3;
 
 export function tileFromPoint(point: { x: number; y: number }): Tile {
 	return {
@@ -26,6 +28,15 @@ function tileCenter(tile: Tile): { x: number; y: number } {
 	return {
 		x: tile.x * TILE_SIZE + TILE_SIZE / 2,
 		y: tile.y * TILE_SIZE + TILE_SIZE / 2,
+	};
+}
+
+export function enemyCenter(enemy: Enemy): { x: number; y: number } {
+	const from = tileCenter(enemy.tile);
+	const to = tileCenter(enemy.next);
+	return {
+		x: from.x + (to.x - from.x) * enemy.progress,
+		y: from.y + (to.y - from.y) * enemy.progress,
 	};
 }
 
@@ -76,6 +87,16 @@ function drawTowers(ctx: CanvasRenderingContext2D, towers: Tower[]): void {
 	}
 }
 
+function drawEnemies(ctx: CanvasRenderingContext2D, enemies: Enemy[]): void {
+	ctx.fillStyle = BOARD_COLORS.enemy;
+	for (const enemy of enemies) {
+		const center = enemyCenter(enemy);
+		ctx.beginPath();
+		ctx.arc(center.x, center.y, ENEMY_RADIUS, 0, 2 * Math.PI);
+		ctx.fill();
+	}
+}
+
 function drawMarker(
 	ctx: CanvasRenderingContext2D,
 	marker: { tile: Tile; color: string; label: string; align: CanvasTextAlign },
@@ -106,6 +127,7 @@ export function drawBoard(
 	drawGrid(ctx, state);
 	if (route) drawRoute(ctx, route);
 	drawTowers(ctx, state.towers);
+	drawEnemies(ctx, state.enemies);
 	drawMarker(ctx, {
 		tile: state.spawn,
 		color: BOARD_COLORS.spawn,

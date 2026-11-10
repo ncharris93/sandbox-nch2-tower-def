@@ -16,6 +16,15 @@ export interface Tower {
 
 export interface Enemy {
 	id: number;
+	tile: Tile;
+	next: Tile;
+	/** 0–1 share of the step from `tile` to `next` already walked. */
+	progress: number;
+}
+
+export interface TestWave {
+	remaining: number;
+	untilNextSpawnMs: number;
 }
 
 export interface GameState {
@@ -27,6 +36,11 @@ export interface GameState {
 	money: number;
 	/** Next record id to hand out; ids are never reused. */
 	nextId: number;
+	timeMs: number;
+	paused: boolean;
+	/** Frame time received but not yet spent on whole sim steps. */
+	pendingMs: number;
+	testWave: TestWave;
 }
 
 const GRID_WIDTH = 30;
@@ -45,5 +59,9 @@ export function createInitialState(): GameState {
 		enemies: [],
 		money: STARTING_MONEY,
 		nextId: 1,
+		timeMs: 0,
+		paused: false,
+		pendingMs: 0,
+		testWave: { remaining: 0, untilNextSpawnMs: 0 },
 	};
 }
