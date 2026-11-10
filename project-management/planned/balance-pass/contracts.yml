@@ -1,0 +1,6 @@
+contracts:
+  - {id: game-state, imported_from: "maze-core#game-state"}
+  - {id: sim-loop, imported_from: "maze-core#sim-loop"}
+  - {id: tower-defs, imported_from: "tower-combat#tower-defs"}
+  - {id: enemy-defs, imported_from: "waves-economy#enemy-defs"}
+  - {id: waves, imported_from: "waves-economy#waves"}
