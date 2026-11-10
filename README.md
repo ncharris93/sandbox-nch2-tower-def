@@ -11,3 +11,5 @@ npm install
 npm run dev    # start the dev server and open the printed URL
 npm run gate   # Biome, tsc --noEmit, Vitest, vite build — the pre-merge check
 ```
+
+Click the board to place a tower; the route redraws around it.
