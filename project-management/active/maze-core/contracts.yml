@@ -7,7 +7,7 @@ contracts:
     status: stub
     consumers: [2026-11-09-place-towers, 2026-11-09-enemies-walk]
   - id: pathfinding
-    description: "Deterministic 4-dir BFS over the tile grid: route from a tile to the exit given blocked tiles; distance-to-exit field for any tile."
+    description: "Deterministic 4-dir BFS over the tile grid, each function taking one options object: findRoute({ grid, from, to, blocked }) → Tile[] | null (route including both ends, null when cut off); distanceField({ grid, to, blocked }) → DistanceField (steps to target per tile, [y][x], UNREACHABLE for blocked or cut-off tiles). blocked is a ReadonlySet of tileKey(tile) strings."
     provider: 2026-11-09-grid-and-route
     path: src/game/pathfinding.ts
     kind: module
