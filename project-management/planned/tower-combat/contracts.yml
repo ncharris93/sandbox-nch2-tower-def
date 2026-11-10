@@ -1,0 +1,19 @@
+contracts:
+  - {id: game-state, imported_from: "maze-core#game-state"}
+  - {id: pathfinding, imported_from: "maze-core#pathfinding"}
+  - {id: placement, imported_from: "maze-core#placement"}
+  - {id: sim-loop, imported_from: "maze-core#sim-loop"}
+  - id: tower-defs
+    description: "Per-type, per-level tower stats table (cost, damage, cooldown, range, splash, slow) and targeting rule per type. balance-pass tunes the numbers."
+    provider: 2026-11-09-rapid-tower
+    path: src/game/towers.ts
+    kind: module
+    status: stub
+    consumers: [2026-11-09-cannon-splash, 2026-11-09-frost-slow, 2026-11-09-select-and-upgrade, 2026-11-09-sell]
+  - id: combat
+    description: "Per-tick tower targeting/firing, projectile flight and impact, damageEnemy, slow application, and an enemy-death event that waves-economy consumes for bounties."
+    provider: 2026-11-09-rapid-tower
+    path: src/game/combat.ts
+    kind: module
+    status: stub
+    consumers: [2026-11-09-cannon-splash, 2026-11-09-frost-slow]
