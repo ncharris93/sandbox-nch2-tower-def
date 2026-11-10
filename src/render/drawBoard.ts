@@ -1,4 +1,4 @@
-import type { GameState, Tile } from "../game/state";
+import type { GameState, Tile, Tower } from "../game/state";
 
 export const TILE_SIZE = 28;
 
@@ -8,11 +8,19 @@ const BOARD_COLORS = {
 	route: "#38bdf8",
 	spawn: "#4ade80",
 	exit: "#f87171",
+	tower: "#fbbf24",
 	label: "#f8fafc",
 } as const;
 
 const LABEL_FONT = "600 13px system-ui, sans-serif";
 const LABEL_GAP = 6;
+
+export function tileFromPoint(point: { x: number; y: number }): Tile {
+	return {
+		x: Math.floor(point.x / TILE_SIZE),
+		y: Math.floor(point.y / TILE_SIZE),
+	};
+}
 
 function tileCenter(tile: Tile): { x: number; y: number } {
 	return {
@@ -56,6 +64,18 @@ function drawRoute(ctx: CanvasRenderingContext2D, route: Tile[]): void {
 	ctx.stroke();
 }
 
+function drawTowers(ctx: CanvasRenderingContext2D, towers: Tower[]): void {
+	ctx.fillStyle = BOARD_COLORS.tower;
+	for (const { anchor } of towers) {
+		ctx.fillRect(
+			anchor.x * TILE_SIZE + 2,
+			anchor.y * TILE_SIZE + 2,
+			2 * TILE_SIZE - 3,
+			2 * TILE_SIZE - 3,
+		);
+	}
+}
+
 function drawMarker(
 	ctx: CanvasRenderingContext2D,
 	marker: { tile: Tile; color: string; label: string; align: CanvasTextAlign },
@@ -85,6 +105,7 @@ export function drawBoard(
 	const { state, route } = board;
 	drawGrid(ctx, state);
 	if (route) drawRoute(ctx, route);
+	drawTowers(ctx, state.towers);
 	drawMarker(ctx, {
 		tile: state.spawn,
 		color: BOARD_COLORS.spawn,

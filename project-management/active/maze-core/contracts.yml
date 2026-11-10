@@ -1,6 +1,6 @@
 contracts:
   - id: game-state
-    description: "Single game-state module: grid dims, spawn/exit, towers[] and enemies[] as plain records with stable ids, money, sim time, paused flag. Extended by tower-combat, waves-economy, live-repath."
+    description: "Single game-state module: grid dims, spawn/exit, towers[] ({ id, anchor } — anchor is the 2×2 footprint's top-left tile) and enemies[] as plain records with stable ids drawn from nextId (never reused), money, sim time, paused flag. Extended by tower-combat, waves-economy, live-repath."
     provider: 2026-11-09-grid-and-route
     path: src/game/state.ts
     kind: module
@@ -14,12 +14,12 @@ contracts:
     status: stub
     consumers: [2026-11-09-place-towers, 2026-11-09-enemies-walk]
   - id: placement
-    description: "canPlaceTower(state, anchor) → ok | {reason}; placeTower mutates state. live-repath adds active-enemy and anti-juggle checks here."
+    description: "Each function taking one options object where it has more than one input: canPlaceTower({ state, anchor }) → { ok: true } | { ok: false, reason } (player-readable reason; checks in order off-board, spawn/exit, overlap, funds, route); placeTower({ state, anchor }) → same result, and on ok mutates state (appends tower, deducts TOWER_COST, advances nextId); towerFootprint(anchor) → Tile[]; blockedTiles(state) → ReadonlySet<string> of tileKey for every tower tile. live-repath adds active-enemy and anti-juggle checks here."
     provider: 2026-11-09-place-towers
     path: src/game/placement.ts
     kind: module
     status: stub
-    consumers: []
+    consumers: [2026-11-09-enemies-walk]
   - id: sim-loop
     description: "Fixed-timestep tick(state, dt) with clamped catch-up and pause; per-system update hooks (movement now; combat/waves added by later jobs)."
     provider: 2026-11-09-enemies-walk
